@@ -46,14 +46,21 @@ const post = defineType({
         Rule.required()
           .min(1)
           .custom(async (categories, context) => {
-            if (!categories || categories.length === 0) return 'Seleziona almeno una categoria';
+            if (!Array.isArray(categories) || categories.length === 0) return 'Seleziona almeno una categoria';
             // Fetch le categorie referenziate per ottenere lo slug
-            const client = context.getClient?.();
+            // Sanity v3: context.getClient() requires an argument (apiVersion)
+            const client = typeof context.getClient === 'function' ? context.getClient({apiVersion: '2025-08-08'}) : undefined;
             if (!client) return true; // fallback: non validare
-            const ids = categories.map((c: any) => c._ref).filter(Boolean);
+            const ids = categories
+              .map((c) => c && typeof c === 'object' && '_ref' in c ? (c as { _ref?: string })._ref : undefined)
+              .filter((id): id is string => Boolean(id));
             if (!ids.length) return true;
-            const cats = await client.fetch(`*[_type == "category" && _id in $ids]{slug}`, { ids });
-            const hasRicetta = cats.some((c: any) => {
+            type CategorySlug = { slug?: { current?: string } };
+            const cats: CategorySlug[] = await client.fetch(
+              `*[_type == "category" && _id in $ids]{slug}`,
+              { ids }
+            );
+            const hasRicetta = cats.some((c) => {
               const slug = c.slug?.current?.toLowerCase();
               return slug === 'ricetta' || slug === 'ricette';
             });

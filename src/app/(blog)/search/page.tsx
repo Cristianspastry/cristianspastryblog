@@ -4,19 +4,20 @@ import { client } from '@/sanity/lib/client';
 import { urlFor } from '@/sanity/lib/image';
 import { Search, X, BookOpen, List, FileText } from 'lucide-react';
 import Link from 'next/link';
+import Image from "next/image";
 
 interface Post {
   _id: string;
   title: string;
   slug: { current: string };
-  mainImage?: any;
-  categories?: any[];
+  mainImage?: { asset: { _ref: string; _type: string } };
+  categories?: { title: string; _id: string; slug?: { current: string } }[];
   excerpt?: string;
-  body?: any;
+  body?: unknown;
   _type: string;
   // projections we will use:
   categoryTitlesRef?: string[]; // categorie come titles da reference
-  categoriesRaw?: any[]; // categorie raw (stringhe o oggetti)
+  categoriesRaw?: (string | { [key: string]: unknown })[]; // categorie raw (stringhe o oggetti)
 }
 
 const RECIPE_CATEGORIES = [
@@ -104,10 +105,9 @@ export default function SearchPage() {
       }`;
 
       let allResults: Post[] = [];
-      let triedWithBody = false;
+      //let triedWithBody = false;
 
       try {
-        triedWithBody = true;
         allResults = await client.fetch(groqWithBody, { q: qParam });
         console.log(`✅ Query con body eseguita. Trovati ${allResults.length} risultati.`);
       } catch (err) {
@@ -146,10 +146,11 @@ export default function SearchPage() {
         // Normalizza le categorie: unisci references e raw
         const refs: string[] = Array.isArray(post.categoryTitlesRef) ? post.categoryTitlesRef.filter(Boolean) : [];
         const raw = Array.isArray(post.categoriesRaw) ? post.categoriesRaw : [];
-        const rawTitles: string[] = raw.map((c: any) => {
+        type RawCategory = string | { title?: string; _ref?: string };
+        const rawTitles: string[] = raw.map((c: RawCategory) => {
           if (!c) return '';
           if (typeof c === 'string') return c;
-          if (typeof c === 'object' && c.title) return c.title;
+          if (typeof c === 'object' && typeof c.title === 'string') return c.title;
           if (typeof c === 'object' && c._ref) return ''; // reference non dereferenziato
           return '';
         }).filter(Boolean);
@@ -246,7 +247,7 @@ export default function SearchPage() {
 
       {!loading && query && totalResults > 0 && (
         <div className="mb-6 text-center text-blue-700">
-          Trovati {totalResults} risultati per "{query}"
+          Trovati {totalResults} risultati per &quot;{query}&quot;
         </div>
       )}
 
@@ -277,7 +278,7 @@ export default function SearchPage() {
                       >
                         {post.mainImage && (
                           <div className="relative h-40 w-full">
-                            <img
+                            <Image
                               src={urlFor(post.mainImage).width(400).height(250).url()}
                               alt={post.title}
                               className="object-cover w-full h-full"
@@ -315,7 +316,7 @@ export default function SearchPage() {
         <div className="text-center text-gray-500 py-12">
           <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
           <p className="text-lg mb-2">Nessun risultato trovato</p>
-          <p className="text-sm">Prova con parole chiave diverse o controlla l'ortografia</p>
+          <p className="text-sm">Prova con parole chiave diverse o controlla l&apos;ortografia</p>
         </div>
       )}
 

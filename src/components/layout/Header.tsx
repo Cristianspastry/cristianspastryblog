@@ -43,7 +43,7 @@ const Header: React.FC = () => {
             </div>
             <button
               onClick={() => setSearchOpen(true)}
-              className="ml-4 flex items-center gap-1 text-blue-900 hover:text-blue-600 transition-colors hidden md:flex"
+              className="ml-4 flex items-center gap-1 text-blue-900 hover:text-blue-600 transition-colors  md:flex"
               title="Search"
             >
               <Search className="w-5 h-5" />

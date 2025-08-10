@@ -52,7 +52,13 @@ export function SocialShareActions({ title, url }: { title: string; url: string 
   );
 }
 
-export default function RecipeActions({ title, url }: { title: string; url: string }) {
+
+
+
+export default function RecipeActions() {
+
+
+
   // Commenti mock
   const [comments, setComments] = useState([
     { name: 'Anna', text: 'Ricetta fantastica, l’ho provata ieri!' },
@@ -61,13 +67,16 @@ export default function RecipeActions({ title, url }: { title: string; url: stri
   const [name, setName] = useState('');
   const [text, setText] = useState('');
 
-  function handlePrint() {
+  /*function handlePrint() {
     window.print();
-  }
-  function handleCopy() {
+  }*/
+
+
+ /* function handleCopy() {
     navigator.clipboard.writeText(url);
     alert('Link copiato!');
-  }
+  }*/
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (name && text) {
