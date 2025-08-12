@@ -4,6 +4,7 @@ import { client } from '@/sanity/lib/client';
 import { urlFor } from '@/sanity/lib/image';
 import { Search, X, BookOpen, List, FileText } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface SearchOverlayProps {
   open: boolean;
@@ -136,7 +137,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
         allResults.forEach((post: Post, index: number) => {
           const categoryTitles = post.categories?.map(cat => cat.title) || [];
         
-          console.log(`\n📄 Post ${index + 1}: "${post.title}"`);
+          console.log(`\n📄 Post ${index + 1}: &quot;${post.title}&quot;`);
           console.log('📁 Categorie grezze:', post.categories);
           console.log('📁 Titoli:', categoryTitles);
           
@@ -249,7 +250,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
           {/* Results count */}
           {!loading && query && totalResults > 0 && (
             <div className="px-6 py-3 text-center text-blue-700 text-sm border-b border-gray-50">
-              Trovati {totalResults} risultati per "{query}"
+              Trovati {totalResults} risultati per &quot;{query}&quot;
             </div>
           )}
 
@@ -283,9 +284,11 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                           >
                             {post.mainImage && (
                               <div className="relative w-16 h-16 flex-shrink-0">
-                                <img
+                                <Image
                                   src={urlFor(post.mainImage).width(150).height(150).url()}
                                   alt={post.title}
+                                  width={64}
+                                  height={64}
                                   className="object-cover w-full h-full rounded-l-lg"
                                 />
                               </div>
