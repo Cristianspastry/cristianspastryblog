@@ -31,13 +31,13 @@ export async function GET() {
 
   // Dynamic pages
   const dynamicUrls: string[] = [];
-  posts.forEach(post => {
+  posts.forEach((post: { slug?: { current?: string }, categories?: { title: string }[] }) => {
     const section = getSection(post.categories);
     if (section && post.slug?.current) {
       dynamicUrls.push(`${siteUrl}/${section}/${post.slug.current}`);
     }
   });
-
+  
   // Build sitemap
   const urls = [
     ...staticPages.map(path => `${siteUrl}/${path}`.replace(/\/\/$/, '/')),
