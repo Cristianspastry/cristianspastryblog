@@ -60,8 +60,12 @@ function categorizePost(post: Post): string {
 
   // Estrae i titoli delle categorie
   const categoryTitles = post.categories.map(cat => 
-    typeof cat === 'string' ? cat : cat.title
-  ).filter(Boolean);
+    typeof cat === 'string'
+      ? cat
+      : (cat && typeof cat === 'object' && 'title' in cat
+          ? (cat as { title: string }).title
+          : undefined)
+  ).filter((title): title is string => Boolean(title));
 
   // Controlla se ha categorie di ricette
   const hasRecipeCategory = categoryTitles.some(cat => 
@@ -135,9 +139,10 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
         };
         
         allResults.forEach((post: Post, index: number) => {
-          const categoryTitles = post.categories?.map(cat => cat.title) || [];
+          // Since post.categories is already an array of strings (titles), just use it directly
+          const categoryTitles = post.categories || [];
         
-          console.log(`\n📄 Post ${index + 1}: &quot;${post.title}&quot;`);
+          console.log(`\n📄 Post ${index + 1}: "${post.title}"`);
           console.log('📁 Categorie grezze:', post.categories);
           console.log('📁 Titoli:', categoryTitles);
           

@@ -400,7 +400,7 @@ export default async function RicettaDettaglioPage({ params }: Props) {
 
       {/* Sezione commenti in fondo */}
       <section className="mt-12 pt-8 border-t border-gray-200">
-        <RecipeActions title={recipe.title} url={currentUrl} />
+        <RecipeActions />
       </section>
     </main>
     </>
