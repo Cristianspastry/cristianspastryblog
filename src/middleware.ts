@@ -23,8 +23,8 @@ export function middleware(request: NextRequest) {
     const [username, password] = decoded.split(':')
 
     // Verifica le credenziali (sostituisci con le tue)
-    const validUsername = process.env.STUDIO_USERNAME || 'admin'
-    const validPassword = process.env.STUDIO_PASSWORD || 'password123'
+    const validUsername = process.env.STUDIO_USERNAME
+    const validPassword = process.env.STUDIO_PASSWORD
 
     if (username !== validUsername || password !== validPassword) {
       return new NextResponse(null, {
