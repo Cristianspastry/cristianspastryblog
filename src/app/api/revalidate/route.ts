@@ -10,11 +10,10 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json()
+    await request.json()
     
     // Revalida tutto il sito (opzione semplice)
     revalidatePath('/', 'layout')
-    
     // OPPURE revalida pagine specifiche basate sul documento modificato
     // if (body._type === 'post') {
     //   revalidatePath('/blog')
