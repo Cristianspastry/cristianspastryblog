@@ -17,6 +17,13 @@ export const postType = defineType({
     defineField({ name: 'prepTime', type: 'number', title: 'Tempo di preparazione (minuti)', validation: Rule => Rule.required().min(1) }),
     defineField({ name: 'cookTime', type: 'number', title: 'Tempo di cottura (minuti)', validation: Rule => Rule.required().min(0) }),
     defineField({ name: 'servings', type: 'number', title: 'Porzioni', validation: Rule => Rule.required().min(1) }),
+    defineField({
+      name: 'cakePan',
+      title: 'cakePan',
+      type: 'string',
+      description: 'Dimensioni della teglia (es. 20x30 cm, Ø 24 cm, ecc.)',
+      placeholder: 'es. 24x18 cm, Ø 26 cm, 6 stampini...',
+    }),
     defineField({ name: 'excerpt', type: 'text', title: 'Descrizione breve', rows: 4, validation: Rule => Rule.required() }),
     defineField({ name: 'body', type: 'blockContent', title: 'Descrizione lunga' }),
     defineField({

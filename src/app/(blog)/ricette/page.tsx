@@ -1,4 +1,4 @@
-import { getPageMetadata } from '@/app/seo/seoUtils';
+import { getPageMetadata } from '@/seo/seoUtils';
 import RicetteClient from '../../../components/feature/RicetteClient';
 import Script from 'next/script';
 

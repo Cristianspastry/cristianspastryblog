@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Search } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { siteConfig } from "@/config/site";
+import Image from "next/image";
 const SearchOverlay = dynamic(() => import('../feature/SearchOverlay'), { ssr: false });
 
 const navLinks = [
@@ -29,11 +30,14 @@ const Header: React.FC = () => {
     <header className="py-6 border-b relative bg-white z-30">
       <div className="max-w-6xl mx-auto px-4">
         <nav className="flex items-center justify-between">
-          {/* Logo e navigazione desktop su una stessa linea */}
+          {/* Logo e navigazione desktop */}
           <div className="flex items-center space-x-8">
+            <Image src="/logo2.svg" alt="Logo" width={50} height={50} />
+            
             <Link href={siteConfig.links.home} className="text-blue-900 font-serif text-2xl font-bold">
               {siteConfig.name}
             </Link>
+            
             <div className="hidden md:flex space-x-6">
               {navLinks.map((link) => (
                 <a key={link.href} href={link.href} className="text-gray-800 hover:text-blue-900">
@@ -41,16 +45,18 @@ const Header: React.FC = () => {
                 </a>
               ))}
             </div>
+            
+            {/* Search button - solo su desktop */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="ml-4 flex items-center gap-1 text-blue-900 hover:text-blue-600 transition-colors  md:flex"
+              className="ml-4 hidden md:flex items-center gap-1 text-blue-900 hover:text-blue-600 transition-colors"
               title="Search"
             >
               <Search className="w-5 h-5" />
-              <span className="hidden md:inline">Search</span>
+              <span>Search</span>
             </button>
-            <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
           </div>
+
           {/* Mobile menu button */}
           <div className="md:hidden">
             <button
@@ -72,7 +78,11 @@ const Header: React.FC = () => {
           </div>
         </nav>
       </div>
-      {/* Questi elementi sono renderizzati solo lato client */}
+
+      {/* SearchOverlay component */}
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
+
+      {/* Elementi renderizzati solo lato client */}
       {isClient && (
         <>
           {/* Overlay trasparente */}
@@ -89,10 +99,10 @@ const Header: React.FC = () => {
           >
             <div className="p-5">
               <div className="flex justify-between items-center mb-6">
-                <span className="font-serif text-xl font-bold text-blue-900">{siteConfig.name}</span>
+                <span className="font-serif text-2xl font-bold text-blue-900 text-center">{siteConfig.name}</span>
                 <button
                   onClick={() => setMenuOpen(false)}
-                  className="text-gray-500 hover:text-blue-900"
+                  className="text-gray-500 justify-center hover:text-blue-900"
                   aria-label="Close menu"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -104,7 +114,10 @@ const Header: React.FC = () => {
                 {/* Search in cima al menu mobile */}
                 <button
                   className="flex items-center gap-2 text-blue-900 hover:text-blue-600 font-semibold py-2 border-b border-blue-50 mb-2"
-                  onClick={() => { setMenuOpen(false); setTimeout(() => setSearchOpen(true), 300); }}
+                  onClick={() => { 
+                    setMenuOpen(false); 
+                    setTimeout(() => setSearchOpen(true), 300); 
+                  }}
                   type="button"
                 >
                   <Search className="w-5 h-5" />

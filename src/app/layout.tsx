@@ -3,7 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { draftMode } from "next/headers";
 import { VisualEditing } from "next-sanity";
-
+import { SpeedInsights } from "@vercel/speed-insights/next"
 // Wrapper per evitare warning di props non riconosciute
 const VisualEditingWrapper = () => {
   return <VisualEditing />;
@@ -46,8 +46,10 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://cdn.sanity.io" />
+        <meta name="google-site-verification" content="dUN8G5y3wcV9cFpWBe-iwKYreuiJriXxL53A_PzhyLk" />
       </head>
       <body className={`${inter.variable} ${playfair.variable} bg-gray-50 text-gray-900`}>
+       <SpeedInsights/>
         <main className="min-h-screen">
           {children}
           <SanityLive />

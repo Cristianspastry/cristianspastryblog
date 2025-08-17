@@ -4,7 +4,7 @@ import HeroSection from '../../components/feature/HeroSection';
 import { urlFor } from '../../sanity/lib/image';
 import Button from '@/components/ui/Button';
 import Image from 'next/image';
-import { getPageMetadata } from '@/app/seo/seoUtils';
+import { getPageMetadata } from '@/seo/seoUtils';
 import Script from 'next/script';
 import { getHomePageData, type Recipe } from '@/sanity/lib/data';
 

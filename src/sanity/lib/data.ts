@@ -33,6 +33,7 @@ export interface Recipe {
   prepTime?: number;
   cookTime?: number;
   servings?: number;
+  cakePan?: string;
   ingredients?: { amount?: string; unit?: string; ingredient: string }[];
   instructions?: { instruction: string }[];
   tips?: string[];

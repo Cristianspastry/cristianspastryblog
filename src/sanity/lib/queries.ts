@@ -46,6 +46,7 @@ export const recipeQuery = `
     prepTime,
     cookTime,
     servings,
+    cakePan,
     ingredients,
     instructions,
     tips,

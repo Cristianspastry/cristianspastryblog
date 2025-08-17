@@ -107,12 +107,20 @@ const post = defineType({
       validation: Rule => Rule.required().min(1),
     }),
     defineField({
+      name: 'teglia',
+      title: 'Teglia',
+      type: 'string',
+      description: 'Dimensioni della teglia (es. 20x30 cm, Ø 24 cm, ecc.)',
+      placeholder: 'es. 24x18 cm, Ø 26 cm, 6 stampini...',
+    }),
+    defineField({
       name: 'excerpt',
       title: 'Descrizione breve',
       type: 'text',
       rows: 4,
       validation: Rule => Rule.required(),
     }),
+    
     defineField({
       name: 'body',
       title: 'Descrizione lunga',

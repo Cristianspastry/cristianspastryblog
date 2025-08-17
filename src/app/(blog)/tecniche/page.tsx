@@ -1,4 +1,4 @@
-import { getPageMetadata } from '@/app/seo/seoUtils';
+import { getPageMetadata } from '@/seo/seoUtils';
 import TecnicheClient from '@/components/feature/TecnicheClient';
 import Script from 'next/script';
 

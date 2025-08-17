@@ -1,4 +1,3 @@
-
 /**
  * This route is responsible for the built-in authoring environment using Sanity Studio.
  * All routes under your studio path is handled by this file using Next.js' catch-all routes:
@@ -11,11 +10,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import dynamicImport from 'next/dynamic'
+import dynamic from 'next/dynamic'
 import config from '../../../../sanity.config'
 
 // Import dinamico per evitare problemi di SSR
-const NextStudio = dynamicImport(() => import('next-sanity/studio').then(mod => ({ default: mod.NextStudio })), {
+const NextStudio = dynamic(() => import('next-sanity/studio').then((mod) => mod.NextStudio), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center min-h-screen">
@@ -32,6 +31,23 @@ export default function StudioPage() {
 
   useEffect(() => {
     setIsClient(true)
+    
+    // Sopprime gli errori di sviluppo di React per le props non riconosciute di Sanity
+    const originalError = console.error
+    console.error = (...args) => {
+      if (
+        typeof args[0] === 'string' &&
+        args[0].includes('React does not recognize the') &&
+        args[0].includes('disableTransition')
+      ) {
+        return
+      }
+      originalError.apply(console, args)
+    }
+
+    return () => {
+      console.error = originalError
+    }
   }, [])
 
   if (!isClient) {

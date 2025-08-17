@@ -17,7 +17,7 @@ import {
   Camera,
   Users,
 } from 'lucide-react';
-import { getPageMetadata } from '@/app/seo/seoUtils';
+import { getPageMetadata } from '@/seo/seoUtils';
 import Script from 'next/script';
 
 export async function generateMetadata() {
