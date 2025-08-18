@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { client } from '../../sanity/lib/client';
-import { urlFor } from '../../sanity/lib/image';
+import { client } from '@/sanity/lib/client';
+import { urlFor } from '@/sanity/lib/image';
 import { Tag, Search, X } from 'lucide-react';
-import RecipeCard from './card/RecipeCard';
-import TechniqueCard from './card/TechniqueCard';
-import DiaryCard from './card/DiaryCard';
+import RecipeCard from '../card/RecipeCard';
+import TechniqueCard from '../card/TechniqueCard';
+import DiaryCard from '../card/DiaryCard';
 
 type Variant = 'ricette' | 'tecniche' | 'diario';
 
