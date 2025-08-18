@@ -47,9 +47,21 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://cdn.sanity.io" />
         <meta name="google-site-verification" content="dUN8G5y3wcV9cFpWBe-iwKYreuiJriXxL53A_PzhyLk" />
-        <meta name="google-adsense-account" content="ca-pub-9041998535543330"/>
+        <meta name="google-adsense-account" content="ca-pub-9041998535543330"></meta>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9041998535543330"
      crossOrigin="anonymous"></script>
+     {/*<!-- Google tag (gtag.js) -->*/}
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8R96F8PFKE"></script>
+<script
+  dangerouslySetInnerHTML={{
+    __html: `
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-8R96F8PFKE');
+    `,
+  }}
+/>
       </head>
       <body className={`${inter.variable} ${playfair.variable} bg-gray-50 text-gray-900`}>
        <SpeedInsights/>
