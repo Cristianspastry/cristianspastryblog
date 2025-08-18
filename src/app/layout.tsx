@@ -48,6 +48,8 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://cdn.sanity.io" />
         <meta name="google-site-verification" content="dUN8G5y3wcV9cFpWBe-iwKYreuiJriXxL53A_PzhyLk" />
         <meta name="google-adsense-account" content="ca-pub-9041998535543330"/>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9041998535543330"
+     crossOrigin="anonymous"></script>
       </head>
       <body className={`${inter.variable} ${playfair.variable} bg-gray-50 text-gray-900`}>
        <SpeedInsights/>
