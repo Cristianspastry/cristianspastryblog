@@ -1,5 +1,5 @@
 import { getPageMetadata } from '@/seo/seoUtils';
-import RicetteClient from '../../../components/feature/RicetteClient';
+import PostsClient from '@/components/feature/client/PostsClient';
 import Script from 'next/script';
 
 export async function generateMetadata() {
@@ -24,7 +24,7 @@ export default function Ricette() {
       <Script id="ricette-collection-jsonld" type="application/ld+json" strategy="afterInteractive">
         {JSON.stringify(jsonLd)}
       </Script>
-      <RicetteClient />
+      <PostsClient title="Ricette" variant="ricette" />
     </>
   );
 } 

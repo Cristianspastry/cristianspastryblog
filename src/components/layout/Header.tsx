@@ -6,7 +6,7 @@ import { Search } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { siteConfig } from "@/config/site";
 import Image from "next/image";
-const SearchOverlay = dynamic(() => import('../feature/SearchOverlay'), { ssr: false });
+const SearchOverlay = dynamic(() => import('../feature/search/SearchOverlay'), { ssr: false });
 
 const navLinks = [
   { label: "Home", href: siteConfig.links.home },

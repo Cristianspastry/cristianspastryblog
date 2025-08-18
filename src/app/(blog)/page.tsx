@@ -1,5 +1,7 @@
 import SectionTitle from '../../components/layout/SectionTitle';
-import RecipeCard from '../../components/feature/RecipeCard';
+import RecipeCard from '../../components/feature/card/RecipeCard';
+import DiaryCard from '../../components/feature/card/DiaryCard';
+import TechniqueCard from '../../components/feature/card/TechniqueCard';
 import HeroSection from '../../components/feature/HeroSection';
 import { urlFor } from '../../sanity/lib/image';
 import Button from '@/components/ui/Button';
@@ -50,15 +52,25 @@ export default async function HomePage() {
             <SectionTitle> Ricette recenti </SectionTitle>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {recentRecipes && recentRecipes.length > 0 ? (
-                recentRecipes.map((recipe: Recipe) => (
-                  <a key={recipe._id} href={`/ricette/${recipe.slug.current}`}>
-                    <RecipeCard
-                      title={recipe.title}
-                      image={recipe.mainImage ? urlFor(recipe.mainImage).width(400).height(250).quality(80).url() : '/placeholder.jpg'}
-                      category={recipe.categories?.[0]?.title || 'Ricetta'}
-                      description={recipe.excerpt || ''}
-                    />
-                  </a>
+                recentRecipes.map((recipe: Recipe, index: number) => (
+                  // REMOVED the Link wrapper - RecipeCard handles its own Link internally
+                  <RecipeCard
+                    key={recipe._id}
+                    title={recipe.title}
+                    image={recipe.mainImage ? urlFor(recipe.mainImage).width(400).height(250).quality(80).url() : '/placeholder.jpg'}
+                    category={recipe.categories?.[0]?.title || 'Ricetta'}
+                    description={recipe.excerpt || ''}
+                    slug={recipe.slug.current}
+                    prepTime={recipe.prepTime}
+                    cookTime={recipe.cookTime}
+                    difficulty={recipe.difficulty}
+                    servings={recipe.servings}
+                    rating={recipe.rating}
+                    priority={index < 3} // Priorità per le prime 3 immagini
+                    publishedAt={recipe.publishedAt}
+                    author={recipe.author?.name}
+                    variant="default" // Variante compatta per la homepage
+                  />
                 ))
               ) : (
                 <div className="col-span-full text-center py-12">
@@ -72,24 +84,28 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+        
         {/* Divider visivo */}
         <div className="w-full h-12 flex items-center justify-center animate-divider-fade-in">
           <div className="w-2/3 h-px bg-gradient-to-r from-blue-200 via-blue-400 to-blue-200 transition-all duration-700" />
         </div>
+        
         {/* Diario Preview */}
         <section className="py-16 bg-gradient-to-b from-white to-blue-50 animate-fade-in-up">
           <div className="max-w-6xl mx-auto px-4">
             <SectionTitle> Diario da commis </SectionTitle>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
               {recentDiary.length > 0 ? recentDiary.map((post: Recipe) => (
-                <a key={post._id} href={`/diario/${post.slug.current}`}>
-                  <RecipeCard
-                    title={post.title}
-                    image={post.mainImage ? urlFor(post.mainImage).width(400).height(250).quality(80).url() : '/placeholder.jpg'}
-                    category={post.categories?.[0]?.title || 'Diario'}
-                    description={post.excerpt || ''}
-                  />
-                </a>
+                <DiaryCard
+                  key={post._id}
+                  title={post.title}
+                  image={post.mainImage ? urlFor(post.mainImage).width(400).height(250).quality(80).url() : '/placeholder.jpg'}
+                  category={post.categories?.[0]?.title || 'Diario'}
+                  description={post.excerpt || ''}
+                  slug={post.slug.current}
+                  publishedAt={post.publishedAt}
+                  author={post.author?.name}
+                />
               )) : <p className="text-gray-500">Nessun post ancora!</p>}
             </div>
             <div className="flex justify-center">
@@ -97,24 +113,26 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+        
         {/* Divider visivo */}
         <div className="w-full h-12 flex items-center justify-center animate-divider-fade-in">
           <div className="w-2/3 h-px bg-gradient-to-r from-blue-200 via-blue-400 to-blue-200 transition-all duration-700" />
         </div>
+        
         {/* Tecniche Preview */}
         <section className="py-16 bg-gradient-to-b from-blue-50 to-white animate-fade-in-up">
           <div className="max-w-6xl mx-auto px-4">
             <SectionTitle> Tecniche di pasticceria </SectionTitle>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
               {recentTechniques.length > 0 ? recentTechniques.map((post: Recipe) => (
-                <a key={post._id} href={`/tecniche/${post.slug.current}`}>
-                  <RecipeCard
-                    title={post.title}
-                    image={post.mainImage ? urlFor(post.mainImage).width(400).height(250).quality(80).url() : '/placeholder.jpg'}
-                    category={post.categories?.[0]?.title || 'Tecniche'}
-                    description={post.excerpt || ''}
-                  />
-                </a>
+                <TechniqueCard
+                  key={post._id}
+                  title={post.title}
+                  image={post.mainImage ? urlFor(post.mainImage).width(400).height(250).quality(80).url() : '/placeholder.jpg'}
+                  category={post.categories?.[0]?.title || 'Tecniche'}
+                  description={post.excerpt || ''}
+                  slug={post.slug.current}
+                />
               )) : <p className="text-gray-500">Nessun post ancora!</p>}
             </div>
             <div className="flex justify-center">
@@ -122,10 +140,12 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+        
         {/* Divider visivo finale */}
         <div className="w-full h-12 flex items-center justify-center animate-divider-fade-in">
           <div className="w-2/3 h-px bg-gradient-to-r from-blue-200 via-blue-400 to-blue-200 transition-all duration-700" />
         </div>
+        
         {/* Chi sono - layout coerente */}
         <section className="py-16 bg-white animate-fade-in-up">
           <div className="max-w-6xl mx-auto px-4">

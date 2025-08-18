@@ -5,6 +5,11 @@ export const homePageQuery = `
       _id,
       title,
       slug,
+      prepTime,
+      cookTime,
+      difficulty,
+      servings,
+      rating,
       mainImage,
       categories[]->{title},
       excerpt

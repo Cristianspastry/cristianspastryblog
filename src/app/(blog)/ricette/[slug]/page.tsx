@@ -9,7 +9,6 @@ import {
   Lightbulb,
   ChefHat,
   BookOpen,
-  Star,
   Timer,
   Users,
   RectangleHorizontal,
@@ -18,53 +17,14 @@ import RecipeActions, { SocialShareActions } from '../../../../components/featur
 import { Suspense } from 'react';
 import { getPageMetadata } from '@/seo/seoUtils';
 import Script from 'next/script';
-import Link from 'next/link';
 import { getRecipe, getOtherRecipes, type Recipe } from '@/sanity/lib/data';
 import RecipeSkeleton from '@/components/feature/RecipeSkeleton';
 import getDifficultyRecipe from '@/help/getDifficultyConfig';
+import RecipeCard from '@/components/feature/card/RecipeCard';
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
-
-
-// Componente per il rating
-/*function RecipeRating({ rating, reviews }: { rating?: number; reviews?: number }) {
-  if (!rating) return null;
-
-  return (
-    <div className="flex items-center gap-2 bg-yellow-50 px-3 py-1 rounded-full">
-      <div className="flex items-center gap-1">
-        {[...Array(5)].map((_, i) => (
-          <Star
-            key={i}
-            className={`w-4 h-4 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
-              }`}
-          />
-        ))}
-      </div>
-      <span className="text-sm font-medium text-yellow-800">
-        {rating.toFixed(1)}
-      </span>
-      {reviews && (
-        <span className="text-xs text-gray-600">({reviews} recensioni)</span>
-      )}
-    </div>
-  );
-}*/
-
-// Componente per il tempo totale
-/*function TotalTime({ prepTime, cookTime }: { prepTime?: number; cookTime?: number }) {
-  const total = (prepTime || 0) + (cookTime || 0);
-  if (!total) return null;
-
-  return (
-    <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2">
-      <Timer className="w-4 h-4" />
-      Tempo totale: {total} min
-    </div>
-  );
-}*/
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -120,41 +80,7 @@ export default async function RicettaDettaglioPage({ params }: Props) {
         {JSON.stringify(jsonLd)}
       </Script>
       <main className="max-w-3xl mx-auto px-4 py-8">
-        {/* Navigation sticky migliorata */}
-
-
-        {/* <div className="sticky top-4 z-30 mb-6">
-          <div
-            className="
-      bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 px-6 py-3
-      grid grid-cols-1 sm:grid-cols-[auto_1fr_auto] items-center
-      gap-y-3 sm:gap-x-8 lg:gap-x-12
-    "
-          >
-            // SX: Bottone 
-            <Button
-              href="/ricette"
-              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors justify-self-start shrink-0"
-            >
-              <BookOpen className="w-4 h-4" />
-              Torna alle ricette
-            </Button>
-
-            // Centro: separatore (solo >= sm) 
-            <span
-              aria-hidden
-              className="hidden sm:block justify-self-stretch h-6 w-px bg-slate-200"
-            />
-
-            // DX: Pill(e) info 
-            <div className="justify-self-end flex items-center gap-3 sm:gap-4 shrink-0">
-              <TotalTime prepTime={recipe.prepTime} cookTime={recipe.cookTime} />
-              <RecipeRating rating={recipe.rating} reviews={recipe.reviews} />
-            </div>
-          </div>
-        </div> */}
-
-
+       
         {/* Hero section migliorata */}
         <div className="relative mb-10 rounded-3xl overflow-hidden shadow-2xl animate-fade-in-up">
           {recipe.mainImage && (
@@ -175,7 +101,7 @@ export default async function RicettaDettaglioPage({ params }: Props) {
                 {recipe.categories?.map((cat) => (
                   <span
                     key={cat.title}
-                    className="bg-blue-500/90 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium"
+                    className="bg-[#0D2858] backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium"
                   >
                     {cat.title}
                   </span>
@@ -218,7 +144,7 @@ export default async function RicettaDettaglioPage({ params }: Props) {
                   <div className={`text-lg font-bold ${difficultyConfig.textColor}`}>
                     {difficultyConfig.label}
                   </div>
-                  
+
                 </div>
               );
             })()
@@ -238,7 +164,7 @@ export default async function RicettaDettaglioPage({ params }: Props) {
               <div className="text-xs font-bold text-gray-900">Ø {recipe.cakePan} cm</div>
             </div>
           )}
-          
+
         </div>
 
         {/* Excerpt migliorata */}
@@ -344,6 +270,7 @@ export default async function RicettaDettaglioPage({ params }: Props) {
         </div>
 
         {/* Altre ricette migliorate */}
+        {/* Altre ricette migliorate */}
         <Suspense fallback={<RecipeSkeleton />}>
           <section className="animate-fade-in-up">
             <SectionTitle>
@@ -352,59 +279,23 @@ export default async function RicettaDettaglioPage({ params }: Props) {
                 Altre ricette che potrebbero piacerti
               </span>
             </SectionTitle>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mt-8">
-              {otherRecipes.map((r: Recipe) => (
-                <Link
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+              {otherRecipes.map((r: Recipe, index: number) => (
+                <RecipeCard
                   key={r._id}
-                  href={`/ricette/${r.slug.current}`}
-                  className="group block transform hover:scale-105 transition-all duration-300"
-                >
-                  <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 h-full">
-                    <div className="relative h-56 w-full overflow-hidden">
-                      <Image
-                        src={r.mainImage ? urlFor(r.mainImage).width(500).height(350).url() : '/placeholder.jpg'}
-                        alt={r.title}
-                        fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-300"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                      />
-                      <div className="absolute top-4 right-4">
-                        {r.rating && (
-                          <div className="bg-black/70 text-white px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5">
-                            <Star className="w-4 h-4 fill-current text-yellow-400" />
-                            {r.rating.toFixed(1)}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold text-gray-900 mb-3 font-serif group-hover:text-blue-600 transition-colors leading-tight">
-                        {r.title}
-                      </h3>
-                      <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
-                        <span className="font-medium">{r.categories?.[0]?.title || 'Ricetta'}</span>
-                        {r.difficulty && (
-                          <span className="bg-gray-100 px-3 py-1 rounded-full text-xs font-medium">
-                            {r.difficulty}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-6 text-sm text-gray-500 mb-4">
-                        {r.prepTime && (
-                          <span className="flex items-center gap-2">
-                            <Clock className="w-4 h-4" />
-                            {r.prepTime + (r.cookTime || 0)} min
-                          </span>
-                        )}
-                      </div>
-                      {r.excerpt && (
-                        <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
-                          {r.excerpt}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </Link>
+                  title={r.title}
+                  image={r.mainImage ? urlFor(r.mainImage).width(600).height(400).url() : '/placeholder.jpg'}
+                  category={r.categories?.[0]?.title || 'Ricetta'}
+                  description={r.excerpt}
+                  slug={r.slug.current}
+                  prepTime={r.prepTime}
+                  cookTime={r.cookTime}
+                  difficulty={r.difficulty}
+                  servings={r.servings}
+                  rating={r.rating}
+                  priority={index < 2}
+                  variant="large" // Usa la variante grande per questa sezione
+                />
               ))}
             </div>
           </section>

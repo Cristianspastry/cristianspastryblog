@@ -47,6 +47,7 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://cdn.sanity.io" />
         <meta name="google-site-verification" content="dUN8G5y3wcV9cFpWBe-iwKYreuiJriXxL53A_PzhyLk" />
+        <meta name="google-adsense-account" content="ca-pub-9041998535543330"/>
       </head>
       <body className={`${inter.variable} ${playfair.variable} bg-gray-50 text-gray-900`}>
        <SpeedInsights/>

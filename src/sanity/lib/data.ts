@@ -70,14 +70,11 @@ export interface HomePageData {
 // Funzioni per fetchare i dati
 export async function getHomePageData(): Promise<HomePageData> {
   try {
-    // Debug: conta totale post
-    const allPosts = await client.fetch(countPostsQuery);
-    console.log('Total posts in database:', allPosts);
-    
+
     const data = await client.fetch(homePageQuery, {}, { 
       next: { revalidate: 3600 } 
     });
-    
+    console.log(data);
    // console.log('Fetched home page data:', data);
     return data;
   } catch (error) {
