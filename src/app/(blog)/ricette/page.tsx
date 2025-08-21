@@ -11,6 +11,7 @@ import { buildRecipeBreadcrumbs } from '@/lib/buildRecipeBreadcrumbs';
 import { buildRecipePaginationHref } from '@/lib/buildRecipePaginationHref';
 import Pagination from '@/components/feature/Pagination';
 import RecipeCard from '@/components/feature/card/RecipeCard';
+import { Suspense } from 'react';
 
 type RecipeSearchParams = {
   categoria?: string;
@@ -221,9 +222,11 @@ export default async function Ricette({ searchParams }: PageProps) {
 
         
 
-        <RecipeFilterBar
-          categories={categoryFilters}
-        />
+        <Suspense fallback={null}>
+          <RecipeFilterBar
+            categories={categoryFilters}
+          />
+        </Suspense>
 
         <main className="max-w-6xl mx-auto px-4 py-12">
           {validRecipes.length > 0 ? (
