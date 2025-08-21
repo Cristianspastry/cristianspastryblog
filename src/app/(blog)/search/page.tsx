@@ -68,7 +68,7 @@ export default function SearchPage() {
 
       // GROQ: prova con ricerca nel body (pt::text) — se fallisce, riproviamo senza
       const groqWithBody = `*[
-        _type == "post" &&
+        _type == "recipe" &&
         defined(slug.current) &&
         (
           title match $q ||
@@ -87,7 +87,7 @@ export default function SearchPage() {
       }`;
 
       const groqNoBody = `*[
-        _type == "post" &&
+        _type == "recipe" &&
         defined(slug.current) &&
         (
           title match $q ||
@@ -126,15 +126,15 @@ export default function SearchPage() {
       // Se non trovi nulla, facciamo un test rapido per vedere se il client ritorna documenti
       if (allResults.length === 0) {
         try {
-          const testAll = await client.fetch('*[_type == "post" && defined(slug.current)]{_id, title, slug, categories}');
-          console.log('🧪 Test fetch tutti i post (senza filtri). Trovati:', testAll.length);
+          const testAll = await client.fetch('*[_type == "recipe" && defined(slug.current)]{_id, title, slug, categories}');
+          console.log('🧪 Test fetch tutte le ricette (senza filtri). Trovate:', testAll.length);
           if (testAll.length === 0) {
-            console.warn('🔴 ATTENZIONE: il client non restituisce post. Verifica projectId/dataset/CORS/slug in Sanity.');
+            console.warn('🔴 ATTENZIONE: il client non restituisce ricette. Verifica projectId/dataset/CORS/slug in Sanity.');
           } else {
-            console.log('ℹ️ Ci sono post, ma la ricerca non ha trovato corrispondenze con la query attuale.');
+            console.log('ℹ️ Ci sono ricette, ma la ricerca non ha trovato corrispondenze con la query attuale.');
           }
         } catch (testErr) {
-          console.error('❌ Errore nel test fetch all posts:', testErr);
+          console.error('❌ Errore nel test fetch all recipes:', testErr);
         }
       }
 
@@ -158,7 +158,7 @@ export default function SearchPage() {
         const combined = [...refs, ...rawTitles].map(s => (s || '').toString());
         const combinedLower = combined.map(s => s.toLowerCase());
 
-        console.log(`\n📄 Post ${i+1}: "${post.title}"`);
+        console.log(`\n📄 Ricetta ${i+1}: "${post.title}"`);
         console.log('   refs:', refs);
         console.log('   raw:', raw);
         console.log('   combined titles:', combined);
@@ -186,11 +186,11 @@ export default function SearchPage() {
         if (/(ricett|dolc|tort|biscott|cioccol|pasticc)/.test(text)) {
           bySection.ricette.push(post);
         } else if (/(tecnic|metod|procedura|tutorial|passo)/.test(text)) {
-          bySection.tecniche.push(post);
+          bySection.diario.push(post);
         } else if (/(diario|oggi|raccont|storia|giorno)/.test(text)) {
           bySection.diario.push(post);
         } else {
-          // default: metti nelle ricette per non perdere il post (opzionale)
+          // default: metti nelle ricette per non perdere la ricetta (opzionale)
           bySection.ricette.push(post);
         }
       });

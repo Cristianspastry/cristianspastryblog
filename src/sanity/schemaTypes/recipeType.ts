@@ -1,8 +1,8 @@
-import {DocumentTextIcon} from '@sanity/icons'
+import {DocumentTextIcon, SearchIcon} from '@sanity/icons'
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
-export const postType = defineType({
-  name: 'post',
+export const recipeType = defineType({
+  name: 'recipe',
   title: 'Ricetta',
   type: 'document',
   icon: DocumentTextIcon,
@@ -61,6 +61,19 @@ export const postType = defineType({
     defineField({ name: 'tips', type: 'array', title: 'Consigli dello chef', of: [defineArrayMember({ type: 'string' })] }),
     defineField({ name: 'author', type: 'reference', title: 'Autore', to: { type: 'author' } }),
     defineField({ name: 'publishedAt', type: 'datetime', title: 'Data pubblicazione', validation: Rule => Rule.required() }),
+    defineField({
+      name: "seo",
+      title: "Impostazioni SEO",
+      type: "seo",
+      group: "seo" // se usi i gruppi
+    }),
+  ],
+  groups : [
+    {
+      name: "seo",
+      title: "SEO",
+      icon: SearchIcon
+    }
   ],
   preview: {
     select: {

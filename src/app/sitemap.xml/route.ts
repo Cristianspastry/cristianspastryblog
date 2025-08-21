@@ -5,7 +5,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
 export async function GET() {
   // Fetch all slugs for ricette, tecniche, diario
-  const posts = await client.fetch(`*[_type == "post" && defined(slug.current)]{
+  const recipes = await client.fetch(`*[_type == "recipe" && defined(slug.current)]{
     slug,
     categories[]->{title}
   }`);
@@ -31,10 +31,10 @@ export async function GET() {
 
   // Dynamic pages
   const dynamicUrls: string[] = [];
-  posts.forEach((post: { slug?: { current?: string }, categories?: { title: string }[] }) => {
-    const section = getSection(post.categories);
-    if (section && post.slug?.current) {
-      dynamicUrls.push(`${siteUrl}/${section}/${post.slug.current}`);
+  recipes.forEach((recipe: { slug?: { current?: string }, categories?: { title: string }[] }) => {
+    const section = getSection(recipe.categories);
+    if (section && recipe.slug?.current) {
+      dynamicUrls.push(`${siteUrl}/${section}/${recipe.slug.current}`);
     }
   });
   

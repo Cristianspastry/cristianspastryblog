@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from 'next/navigation';
 import { client } from '@/sanity/lib/client';
 import { urlFor } from '@/sanity/lib/image';
 import { Tag, Search, X } from 'lucide-react';
@@ -21,6 +22,11 @@ interface PostItem {
   excerpt?: string;
   author?: { name?: string };
   publishedAt?: string;
+  difficulty?: string;
+  prepTime?: number;
+  cookTime?: number;
+  servings?: number;
+  rating?: number;
 }
 
 export default function PostsClient({ title, variant }: { title: string; variant: Variant }) {
@@ -29,10 +35,12 @@ export default function PostsClient({ title, variant }: { title: string; variant
   const [category, setCategory] = useState('Tutte');
   const [categories, setCategories] = useState<{ name: string; count: number }[]>([{ name: 'Tutte', count: 0 }]);
   const [search, setSearch] = useState('');
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchPosts() {
-      const query = `*[_type == "post" && defined(slug.current)]|order(publishedAt desc){
+      const query = `*[_type == "recipe" && defined(slug.current)]|order(publishedAt desc){
         _id,
         title,
         slug,
@@ -40,7 +48,12 @@ export default function PostsClient({ title, variant }: { title: string; variant
         categories[]->{title},
         excerpt,
         author->{name},
-        publishedAt
+        publishedAt,
+        prepTime,
+        cookTime,
+        difficulty,
+        servings,
+        rating
       }`;
       const data = await client.fetch(query);
       setItems(data);
@@ -57,6 +70,28 @@ export default function PostsClient({ title, variant }: { title: string; variant
     }
     fetchPosts();
   }, []);
+
+  // Sync category from URL on mount and when it changes
+  useEffect(() => {
+    const urlCategory = searchParams.get('category');
+    if (urlCategory) {
+      setCategory(urlCategory);
+    }
+  }, [searchParams]);
+
+  // Keep URL in sync when category changes manually
+  useEffect(() => {
+    const current = searchParams.get('category');
+    if ((category === 'Tutte' && current !== null) || (category !== 'Tutte' && current !== category)) {
+      const params = new URLSearchParams(searchParams.toString());
+      if (category === 'Tutte') {
+        params.delete('category');
+      } else {
+        params.set('category', category);
+      }
+      router.replace(`?${params.toString()}`);
+    }
+  }, [category, router, searchParams]);
 
   useEffect(() => {
     let next = items;
@@ -139,6 +174,13 @@ export default function PostsClient({ title, variant }: { title: string; variant
                 (variant === 'tecniche' ? 'Tecnica' : variant === 'diario' ? 'Diario' : 'Ricetta'),
               description: item.excerpt || '',
               slug: item.slug.current,
+              prepTime: item.prepTime,
+              cookTime: item.cookTime,
+              difficulty: item.difficulty,
+              servings: item.servings,
+              rating: item.rating,
+              publishedAt: item.publishedAt,
+              author: item.author?.name
             } as const;
             if (variant === 'diario') {
               return (

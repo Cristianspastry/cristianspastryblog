@@ -11,11 +11,11 @@ import {
   Star,
   Quote
 } from 'lucide-react';
-import { client } from '@/sanity/lib/client';
 import { urlFor } from '@/sanity/lib/image';
 import { PortableText } from '@portabletext/react';
 import { getPageMetadata } from '@/seo/seoUtils';
 import Script from 'next/script';
+import { getAuthor } from '@/sanity/lib/data';
 
 export async function generateMetadata() {
   return getPageMetadata({
@@ -27,18 +27,7 @@ export async function generateMetadata() {
 }
 
 export default async function ChiSonoPage() {
-  const author = await client.fetch(`*[_type == "author"]|order(_createdAt asc)[0]{
-    name,
-    image,
-    bio,
-    quote,
-    experience,
-    recipesCount,
-    location,
-    social,
-    philosophy,
-    story
-  }`);
+  const author = await getAuthor();
 
   const jsonLd = {
     '@context': 'https://schema.org',

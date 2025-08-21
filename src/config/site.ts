@@ -15,6 +15,14 @@ export const siteConfig = {
       url: "https://facebook.com/cristianspastry",
       label: "Facebook"
     },
+    x: {
+      url: "https://x.com/cristianspastry",
+      label: "X"
+    },
+    whatsapp: {
+      url: "https://wa.me/39123456789",
+      label: "WhatsApp"
+    },
     tiktok: {
       url: "https://tiktok.com/@cristianspastry",
       label: "TikTok"

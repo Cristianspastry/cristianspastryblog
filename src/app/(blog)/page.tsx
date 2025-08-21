@@ -8,34 +8,96 @@ import Button from '@/components/ui/Button';
 import Image from 'next/image';
 import { getPageMetadata } from '@/seo/seoUtils';
 import Script from 'next/script';
-import { getHomePageData, type Recipe } from '@/sanity/lib/data';
+import { getHomePageData,  } from '@/sanity/lib/data';
+import { siteConfig } from '@/config/site';
+import Recipe from '@/model/RecipeModel';
+
 
 export async function generateMetadata() {
+  // get le ricette da sanity
+  const { recentRecipes } = await getHomePageData();
+  
+  // Meta description dinamica basata sulle ricette recenti
+  const recipeTitles = recentRecipes?.slice(0, 3).map(r => r.title).join(', ') || 'dolci moderni e tradizionali';
+  const recipesCount = recentRecipes?.length || 50;
+  
   return getPageMetadata({
-    title: 'Cristian\'s Pastry | Blog di pasticceria moderna',
-    description: 'Ricette, tecniche e storie di pasticceria italiana e internazionale. Scopri il blog di Cristian: dolci, basi, consigli e passione per la cucina.',
-    image: '/public/chef-portrait.jpg',
+    title: 'Cristian\'s Pastry | Ricette di Pasticceria Italiana Moderne 2025',
+    description: `🍰 Scopri ${recipesCount}+ ricette di pasticceria moderna italiana: ${recipeTitles}. Tecniche professionali, tutorial step-by-step e segreti del mestiere spiegati dal pasticcere.`,
+    keywords: 'ricette pasticceria, dolci italiani, tecniche pasticceria, blog cucina, ricette moderne, pasticceria professionale, dolci fatti in casa, tutorial dolci',
+    image: '/chef-portrait.jpg', // ✅ Corretto senza /public/
     url: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
     type: 'website',
+    
+    // Open Graph ottimizzato
+    openGraph: {
+      title: '🍰 Cristian\'s Pastry - Le Migliori Ricette di Pasticceria Italiana',
+      description: `${recipesCount}+ ricette testate: ${recipeTitles}. Tecniche professionali spiegate passo dopo passo con foto e video!`,
+      siteName: 'Cristian\'s Pastry',
+      locale: 'it_IT',
+      type: 'website',
+      images: [{
+        url: '/chef-portrait.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Cristian\'s Pastry - Blog di Pasticceria Moderna Italiana'
+      }],
+    },
+    
+    // Twitter Card
+    twitter: {
+      card: 'summary_large_image',
+      title: '🍰 Cristian\'s Pastry',
+      description: `${recipesCount}+ ricette di pasticceria italiana moderne e tecniche professionali`,
+      creator: '@cristianspastry', // Sostituisci se hai un account Twitter
+    }
   });
 }
 
+
+
+
+
+
+
 export default async function HomePage() {
-  // JSON-LD Organization schema
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: "Cristian's Pastry",
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
-    email: 'info@mariarossi.it',
-    sameAs: [
-      'https://instagram.com/mariarossi_chef',
-      'https://facebook.com/mariarossi.chef',
-      'https://youtube.com/mariarossi',
-      'https://twitter.com/mariarossi_chef',
-    ],
-    logo: '/public/chef-portrait.jpg',
-  };
+  
+  
+  const combinedSchema = [
+    // Organization Schema
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: siteConfig.name,
+      url: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+      logo: '/logo2.svg', // ✅ Corretto senza /public/
+      sameAs: siteConfig.social,
+      contactPoint: {
+        '@type': 'ContactPoint',
+        contactType: 'Customer Service',
+        availableLanguage: 'Italian'
+      }
+    },
+    
+    // Website Schema per Search Action
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: siteConfig.name,
+      url: process.env.NEXT_PUBLIC_SITE_URL,
+      description: 'Blog di pasticceria moderna italiana con ricette, tecniche e tutorial professionali',
+      inLanguage: 'it-IT',
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: `${process.env.NEXT_PUBLIC_SITE_URL}/ricette?q={search_term_string}`
+        },
+        'query-input': 'required name=search_term_string'
+      }
+    }
+  ];
+
 
   // Fetch tutti i dati usando la funzione centralizzata
   const { recentRecipes, author, recentDiary, recentTechniques } = await getHomePageData();
@@ -43,7 +105,7 @@ export default async function HomePage() {
   return (
     <>
       <Script id="org-jsonld" type="application/ld+json" strategy="afterInteractive">
-        {JSON.stringify(jsonLd)}
+        {JSON.stringify(combinedSchema)}
       </Script>
       <main>
         <HeroSection />
@@ -56,20 +118,8 @@ export default async function HomePage() {
                   // REMOVED the Link wrapper - RecipeCard handles its own Link internally
                   <RecipeCard
                     key={recipe._id}
-                    title={recipe.title}
-                    image={recipe.mainImage ? urlFor(recipe.mainImage).width(400).height(250).quality(80).url() : '/placeholder.jpg'}
-                    category={recipe.categories?.[0]?.title || 'Ricetta'}
-                    description={recipe.excerpt || ''}
-                    slug={recipe.slug.current}
-                    prepTime={recipe.prepTime}
-                    cookTime={recipe.cookTime}
-                    difficulty={recipe.difficulty}
-                    servings={recipe.servings}
-                    rating={recipe.rating}
+                    recipeProps={recipe}
                     priority={index < 3} // Priorità per le prime 3 immagini
-                    publishedAt={recipe.publishedAt}
-                    author={recipe.author?.name}
-                    variant="default" // Variante compatta per la homepage
                   />
                 ))
               ) : (
@@ -95,18 +145,18 @@ export default async function HomePage() {
           <div className="max-w-6xl mx-auto px-4">
             <SectionTitle> Diario da commis </SectionTitle>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
-              {recentDiary.length > 0 ? recentDiary.map((post: Recipe) => (
+              {recentDiary.length > 0 ? recentDiary.map((recipe: Recipe) => (
                 <DiaryCard
-                  key={post._id}
-                  title={post.title}
-                  image={post.mainImage ? urlFor(post.mainImage).width(400).height(250).quality(80).url() : '/placeholder.jpg'}
-                  category={post.categories?.[0]?.title || 'Diario'}
-                  description={post.excerpt || ''}
-                  slug={post.slug.current}
-                  publishedAt={post.publishedAt}
-                  author={post.author?.name}
+                  key={recipe._id}
+                  title={recipe.title}
+                  image={recipe.mainImage ? urlFor(recipe.mainImage).width(400).height(250).quality(80).url() : '/placeholder.jpg'}
+                  category={recipe.categories?.[0]?.title || 'Diario'}
+                  description={recipe.excerpt || ''}
+                  slug={'recipe.slug.current'}
+                  publishedAt={recipe.publishedAt}
+                  author={recipe.author?.name}
                 />
-              )) : <p className="text-gray-500">Nessun post ancora!</p>}
+              )) : <p className="text-gray-500">Nessuna ricetta ancora!</p>}
             </div>
             <div className="flex justify-center">
               <Button href="/diario">Vai al diario</Button>
@@ -124,16 +174,16 @@ export default async function HomePage() {
           <div className="max-w-6xl mx-auto px-4">
             <SectionTitle> Tecniche di pasticceria </SectionTitle>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
-              {recentTechniques.length > 0 ? recentTechniques.map((post: Recipe) => (
+              {recentTechniques.length > 0 ? recentTechniques.map((recipe: Recipe) => (
                 <TechniqueCard
-                  key={post._id}
-                  title={post.title}
-                  image={post.mainImage ? urlFor(post.mainImage).width(400).height(250).quality(80).url() : '/placeholder.jpg'}
-                  category={post.categories?.[0]?.title || 'Tecniche'}
-                  description={post.excerpt || ''}
-                  slug={post.slug.current}
+                  key={recipe._id}
+                  title={recipe.title}
+                  image={recipe.mainImage ? urlFor(recipe.mainImage).width(400).height(250).quality(80).url() : '/placeholder.jpg'}
+                  category={recipe.categories?.[0]?.title || 'Tecniche'}
+                  description={recipe.excerpt || ''}
+                  slug={'recipe.slug.current'}
                 />
-              )) : <p className="text-gray-500">Nessun post ancora!</p>}
+              )) : <p className="text-gray-500">Nessuna tecnica ancora!</p>}
             </div>
             <div className="flex justify-center">
               <Button href="/tecniche">Scopri tutte le tecniche</Button>

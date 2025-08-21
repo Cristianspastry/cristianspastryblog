@@ -1,17 +1,17 @@
 "use client";
 import { useState, useEffect } from "react";
-import { client } from '@/sanity/lib/client';
 import { urlFor } from '@/sanity/lib/image';
 import { Search, X, BookOpen, List, FileText } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getSearchRecipeNavBar } from "@/sanity/lib/data";
 
 interface SearchOverlayProps {
   open: boolean;
   onClose: () => void;
 }
 
-interface Post {
+interface Recipe {
   _id: string;
   title: string;
   slug: { current: string };
@@ -52,14 +52,14 @@ const SECTIONS = [
   { label: 'Diario', key: 'diario', icon: FileText },
 ];
 
-// Funzione per determinare la sezione di un post
-function categorizePost(post: Post): string {
-  if (!post.categories || post.categories.length === 0) {
-    return 'diario'; // Default per post senza categorie
+// Funzione per determinare la sezione di una ricetta
+function categorizeRecipe(recipe: Recipe): string {
+  if (!recipe.categories || recipe.categories.length === 0) {
+    return 'diario'; // Default per ricette senza categorie
   }
 
   // Estrae i titoli delle categorie
-  const categoryTitles = post.categories.map(cat => 
+  const categoryTitles = recipe.categories.map(cat => 
     typeof cat === 'string'
       ? cat
       : (cat && typeof cat === 'object' && 'title' in cat
@@ -95,7 +95,7 @@ function categorizePost(post: Post): string {
 export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<Record<string, Post[]>>({});
+  const [results, setResults] = useState<Record<string, Recipe[]>>({});
 
   // Reset quando l'overlay si chiude
   useEffect(() => {
@@ -117,38 +117,28 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
     const fetchResults = async () => {
       try {
         // Query GROQ corretta
-        const allResults = await client.fetch(`*[_type == "post" && defined(slug.current) && (
-          title match $q || excerpt match $q || pt::text(body) match $q
-        )]{
-          _id,
-          title,
-          slug,
-          mainImage,
-          excerpt,
-          _type,
-          "categories": categories[]->title
-        }`, { q: `*${query}*` });
+        const allResults = await getSearchRecipeNavBar(query);
         
         console.log('🔍 Risultati totali trovati:', allResults.length);
         
         // Organizza i risultati per sezione
-        const bySection: Record<string, Post[]> = {
+        const bySection: Record<string, Recipe[]> = {
           ricette: [],
           tecniche: [],
           diario: []
         };
         
-        allResults.forEach((post: Post, index: number) => {
-          // Since post.categories is already an array of strings (titles), just use it directly
-          const categoryTitles = post.categories || [];
+        allResults.forEach((recipe: Recipe, index: number) => {
+          // Since recipe.categories is already an array of strings (titles), just use it directly
+          const categoryTitles = recipe.categories || [];
         
-          console.log(`\n📄 Post ${index + 1}: "${post.title}"`);
-          console.log('📁 Categorie grezze:', post.categories);
+          console.log(`\n📄 Ricetta ${index + 1}: "${recipe.title}"`);
+          console.log('📁 Categorie grezze:', recipe.categories);
           console.log('📁 Titoli:', categoryTitles);
           
-          // Determina la sezione e assegna il post
-          const section = categorizePost(post);
-          bySection[section].push(post);
+          // Determina la sezione e assegna la ricetta
+          const section = categorizeRecipe(recipe);
+          bySection[section].push(recipe);
           
           console.log('🏷️ Assegnato a sezione:', section);
         });

@@ -5,6 +5,7 @@ import { draftMode } from "next/headers";
 import { VisualEditing } from "next-sanity";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { GoogleAnalytics } from '@next/third-parties/google'
+import Script from "next/script";
 
 // Wrapper per evitare warning di props non riconosciute
 const VisualEditingWrapper = () => {
@@ -46,24 +47,18 @@ export default async function RootLayout({
     <html lang="it">
       <head>
         <meta name="google-adsense-account" content="ca-pub-9041998535543330"></meta>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9041998535543330"
-     crossOrigin="anonymous"></script>
+        <Script
+          id="adsense-script"
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9041998535543330"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://cdn.sanity.io" />
         <meta name="google-site-verification" content="dUN8G5y3wcV9cFpWBe-iwKYreuiJriXxL53A_PzhyLk" />
         
-     {/*<!-- Google tag (gtag.js) -->*/}
-<script
-  dangerouslySetInnerHTML={{
-    __html: `
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-8R96F8PFKE');
-    `,
-  }}
-/>
       </head>
       <body className={`${inter.variable} ${playfair.variable} bg-gray-50 text-gray-900`}>
       <GoogleAnalytics gaId="G-8R96F8PFKE"/>

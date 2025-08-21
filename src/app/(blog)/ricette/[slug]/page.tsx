@@ -1,8 +1,8 @@
 import { urlFor } from '../../../../sanity/lib/image';
 import SectionTitle from '../../../../components/layout/SectionTitle';
 import { notFound } from 'next/navigation';
-//import Button from '@/components/ui/Button';
 import Image from 'next/image';
+import type { Metadata } from 'next';
 import {
   Clock,
   List,
@@ -15,79 +15,72 @@ import {
 } from 'lucide-react';
 import RecipeActions, { SocialShareActions } from '../../../../components/feature/RecipeActions';
 import { Suspense } from 'react';
-import { getPageMetadata } from '@/seo/seoUtils';
-import Script from 'next/script';
-import { getRecipe, getOtherRecipes, type Recipe } from '@/sanity/lib/data';
+import { getRecipeBySlug, getOtherRecipes } from '@/sanity/lib/data';
 import RecipeSkeleton from '@/components/feature/RecipeSkeleton';
 import getDifficultyRecipe from '@/help/getDifficultyConfig';
 import RecipeCard from '@/components/feature/card/RecipeCard';
+import CategoryChip from '@/components/ui/CategoryChip';
+import Recipe from '@/model/RecipeModel';
+import { generateRecipeMetadata, generateRecipeJsonLd } from '@/sanity/lib/seoHelpers';
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+// Helper per ottenere ricetta (riutilizzabile)
+const getRecipe = async (slug: string) => {
+  return await getRecipeBySlug(slug);
+};
+
+// ========================================
+// METADATA GENERATION (SEO-Ottimizzata)
+// ========================================
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const recipe = await getRecipe(slug);
-  if (!recipe) return {};
-  return getPageMetadata({
-    title: recipe.title,
-    description: recipe.excerpt,
-    image: recipe.mainImage ? urlFor(recipe.mainImage).width(1200).height(630).url() : undefined,
-    url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/ricette/${slug}`,
-    type: 'article',
-    publishedTime: recipe.publishedAt,
-    author: recipe.author?.name,
-    tags: recipe.categories?.map((c: { title: string }) => c.title),
-  });
+  
+  if (!recipe) {
+    return { 
+      title: "Ricetta non trovata",
+      description: "La ricetta che stai cercando non esiste."
+    };
+  }
+
+  // Usa il nuovo helper SEO invece del vecchio getPageMetadata
+  return generateRecipeMetadata(recipe);
 }
 
-export default async function RicettaDettaglioPage({ params }: Props) {
+// ========================================
+// COMPONENTE PRINCIPALE (La tua struttura mantenuta)
+// ========================================
+export default async function RecipeDetailPage({ params }: Props) {
   const { slug } = await params;
   const recipe = await getRecipe(slug);
   const otherRecipes = await getOtherRecipes(slug);
+  
   if (!recipe) return notFound();
 
   const currentUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/ricette/${slug}`;
 
-  // JSON-LD Recipe schema
-  const jsonLd = {
-    '@context': 'https://schema.org/',
-    '@type': 'Recipe',
-    name: recipe.title,
-    description: recipe.excerpt,
-    image: recipe.mainImage ? urlFor(recipe.mainImage).width(1200).height(630).url() : undefined,
-    author: recipe.author?.name ? { '@type': 'Person', name: recipe.author.name } : undefined,
-    datePublished: recipe.publishedAt,
-    recipeCategory: recipe.categories?.map((c: { title: string }) => c.title),
-    recipeIngredient: recipe.ingredients?.map(
-      (i: { amount?: string | number; unit?: string; ingredient: string }) =>
-        `${i.amount ? i.amount + ' ' : ''}${i.unit ? i.unit + ' ' : ''}${i.ingredient}`
-    ),
-    recipeInstructions: recipe.instructions?.map(
-      (step: { instruction: string }) => step.instruction
-    ),
-    prepTime: recipe.prepTime ? `PT${recipe.prepTime}M` : undefined,
-    cookTime: recipe.cookTime ? `PT${recipe.cookTime}M` : undefined,
-    totalTime: recipe.prepTime && recipe.cookTime ? `PT${recipe.prepTime + recipe.cookTime}M` : undefined,
-    keywords: recipe.categories?.map((c: { title: string }) => c.title).join(', '),
-  };
-
+  // JSON-LD ottimizzato usando il nuovo helper
+  const jsonLd = generateRecipeJsonLd(recipe);
 
   return (
     <>
-      <Script id="recipe-jsonld" type="application/ld+json" strategy="afterInteractive">
-        {JSON.stringify(jsonLd)}
-      </Script>
+      {/* JSON-LD Schema ottimizzato */}
+      <script 
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      
       <main className="max-w-3xl mx-auto px-4 py-8">
-       
-        {/* Hero section migliorata */}
+        {/* Hero section - USO i dati SEO ottimizzati */}
         <div className="relative mb-10 rounded-3xl overflow-hidden shadow-2xl animate-fade-in-up">
-          {recipe.mainImage && (
+          {recipe.seo.image && (
             <div className="relative h-64 md:h-[32rem] w-full">
               <Image
-                src={urlFor(recipe.mainImage).width(1200).height(600).url()}
-                alt={recipe.title}
+                src={urlFor(recipe.seo.image).width(1200).height(600).url()}
+                alt={recipe.seo.image.alt || recipe.seo.title}
                 fill
                 className="object-cover"
                 priority
@@ -99,23 +92,25 @@ export default async function RicettaDettaglioPage({ params }: Props) {
             <div className="absolute bottom-0 left-0 right-0 p-8">
               <div className="flex flex-wrap gap-3 mb-4">
                 {recipe.categories?.map((cat) => (
-                  <span
-                    key={cat.title}
-                    className="bg-[#0D2858] backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium"
-                  >
-                    {cat.title}
-                  </span>
+                  <div key={cat.title}>
+                    <CategoryChip 
+                      key={cat.title}
+                      cat={cat}
+                      category={cat.title}
+                    />
+                  </div>
                 ))}
               </div>
+              {/* USA il titolo SEO ottimizzato */}
               <h1 className="text-3xl md:text-6xl font-serif font-bold text-white mb-6 leading-tight">
-                {recipe.title}
+                {recipe.seo.title}
               </h1>
-              <SocialShareActions title={recipe.title} url={currentUrl} />
+              <SocialShareActions title={recipe.seo.title} url={currentUrl} />
             </div>
           </div>
         </div>
 
-        {/* Recipe info cards migliorata */}
+        {/* Recipe info cards - INVARIATA la tua struttura */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           {recipe.prepTime && (
             <div className="bg-white rounded-xl p-4 shadow-sm border border-blue-100 text-center">
@@ -144,7 +139,6 @@ export default async function RicettaDettaglioPage({ params }: Props) {
                   <div className={`text-lg font-bold ${difficultyConfig.textColor}`}>
                     {difficultyConfig.label}
                   </div>
-
                 </div>
               );
             })()
@@ -164,19 +158,18 @@ export default async function RicettaDettaglioPage({ params }: Props) {
               <div className="text-xs font-bold text-gray-900">Ø {recipe.cakePan} cm</div>
             </div>
           )}
-
         </div>
 
-        {/* Excerpt migliorata */}
-        {recipe.excerpt && (
+        {/* Excerpt - USA la descrizione SEO ottimizzata */}
+        {recipe.seo.description && (
           <div className="mb-10 animate-fade-in-up">
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 shadow-sm border border-blue-100">
-              <p className="text-lg leading-relaxed text-blue-900 italic">{recipe.excerpt}</p>
+              <p className="text-lg leading-relaxed text-blue-900 italic">{recipe.seo.description}</p>
             </div>
           </div>
         )}
 
-        {/* Layout a due colonne per desktop */}
+        {/* Layout a due colonne - INVARIATO il tuo design */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
           {/* Ingredienti */}
           <div className="lg:col-span-1 animate-fade-in-up">
@@ -234,13 +227,13 @@ export default async function RicettaDettaglioPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Consigli dello chef migliorati */}
+        {/* Consigli dello chef - INVARIATI */}
         {recipe.tips && recipe.tips.length > 0 && (
           <div className="mb-12 animate-fade-in-up">
             <SectionTitle>
               <span className="inline-flex items-center gap-3">
                 <Lightbulb className="text-yellow-500 w-6 h-6" />
-                Consigli dello chef
+                Consigli
               </span>
             </SectionTitle>
             <div className="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-2xl p-6 shadow-lg border border-yellow-200">
@@ -256,7 +249,7 @@ export default async function RicettaDettaglioPage({ params }: Props) {
           </div>
         )}
 
-        {/* Divider elegante */}
+        {/* Divider elegante - INVARIATO */}
         <div className="flex items-center justify-center py-8">
           <div className="flex items-center gap-4">
             <div className="w-20 h-px bg-gradient-to-r from-transparent to-blue-300"></div>
@@ -269,8 +262,7 @@ export default async function RicettaDettaglioPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Altre ricette migliorate */}
-        {/* Altre ricette migliorate */}
+        {/* Altre ricette - CORREGGI il bug nel RecipeCard */}
         <Suspense fallback={<RecipeSkeleton />}>
           <section className="animate-fade-in-up">
             <SectionTitle>
@@ -280,31 +272,31 @@ export default async function RicettaDettaglioPage({ params }: Props) {
               </span>
             </SectionTitle>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-              {otherRecipes.map((r: Recipe, index: number) => (
-                <RecipeCard
-                  key={r._id}
-                  title={r.title}
-                  image={r.mainImage ? urlFor(r.mainImage).width(600).height(400).url() : '/placeholder.jpg'}
-                  category={r.categories?.[0]?.title || 'Ricetta'}
-                  description={r.excerpt}
-                  slug={r.slug.current}
-                  prepTime={r.prepTime}
-                  cookTime={r.cookTime}
-                  difficulty={r.difficulty}
-                  servings={r.servings}
-                  rating={r.rating}
-                  priority={index < 2}
-                  variant="large" // Usa la variante grande per questa sezione
-                />
-              ))}
+              {otherRecipes
+                .filter((r: Recipe) => !r.seo?.noIndex) // Filtra ricette nascoste
+                .map((r: Recipe, index: number) => (
+                  <RecipeCard
+                    key={r._id}
+                    recipeProps={r} // CORRETTO: era `recipe` ora è `r`
+                    priority={index < 2}
+                    variant="large"
+                  />
+                ))}
             </div>
           </section>
         </Suspense>
 
-        {/* Sezione commenti in fondo */}
+        {/* Sezione commenti - INVARIATA */}
         <section className="mt-12 pt-8 border-t border-gray-200">
           <RecipeActions />
         </section>
+
+        {/* Keywords nascoste per SEO */}
+        {recipe.seo.keywords && recipe.seo.keywords.length > 0 && (
+          <div className="sr-only">
+            <span>Keywords: {recipe.seo.keywords.join(', ')}</span>
+          </div>
+        )}
       </main>
     </>
   );

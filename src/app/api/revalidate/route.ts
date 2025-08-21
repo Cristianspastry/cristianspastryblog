@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     // Revalida tutto il sito (opzione semplice)
     revalidatePath('/', 'layout')
     // OPPURE revalida pagine specifiche basate sul documento modificato
-    // if (body._type === 'post') {
+    // if (body._type === 'recipe') {
     //   revalidatePath('/blog')
     //   revalidatePath(`/blog/${body.slug?.current}`)
     // }
