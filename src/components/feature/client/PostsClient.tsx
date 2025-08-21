@@ -4,7 +4,6 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { client } from '@/sanity/lib/client';
 import { urlFor } from '@/sanity/lib/image';
 import { Tag, Search, X } from 'lucide-react';
-import RecipeCard from '../card/RecipeCard';
 import TechniqueCard from '../card/TechniqueCard';
 import DiaryCard from '../card/DiaryCard';
 
@@ -195,7 +194,7 @@ export default function PostsClient({ title, variant }: { title: string; variant
             if (variant === 'tecniche') {
               return <TechniqueCard key={item._id} {...commonProps} />;
             }
-            return <RecipeCard  key={item._id} {...commonProps} />;
+            return null;
           })}
         </div>
       ) : (
