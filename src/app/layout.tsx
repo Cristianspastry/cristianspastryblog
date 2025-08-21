@@ -58,7 +58,7 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://cdn.sanity.io" />
         <meta name="google-site-verification" content="dUN8G5y3wcV9cFpWBe-iwKYreuiJriXxL53A_PzhyLk" />
-        
+        <Script type="text/javascript" src="//embeds.iubenda.com/widgets/18833f0b-8114-4f60-a764-2a49b94764f2.js"/>
       </head>
       <body className={`${inter.variable} ${playfair.variable} bg-gray-50 text-gray-900`}>
       <GoogleAnalytics gaId="G-8R96F8PFKE"/>

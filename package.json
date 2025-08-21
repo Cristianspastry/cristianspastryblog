@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "analyze": "ANALYZE=true next build"
   },
   "dependencies": {
     "@next/third-parties": "^15.4.6",
@@ -19,9 +20,7 @@
     "next-sanity": "^10.0.12",
     "react": "19.1.1",
     "react-dom": "19.1.1",
-    "react-is": "19.1.1",
-    "sanity": "^4.4.1",
-    "styled-components": "^6.1.19"
+    "sanity": "^4.4.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
