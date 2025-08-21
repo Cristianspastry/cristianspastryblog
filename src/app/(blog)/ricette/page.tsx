@@ -12,47 +12,50 @@ import { buildRecipePaginationHref } from '@/lib/buildRecipePaginationHref';
 import Pagination from '@/components/feature/Pagination';
 import RecipeCard from '@/components/feature/card/RecipeCard';
 
+type RecipeSearchParams = {
+  categoria?: string;
+  difficolta?: string;
+  q?: string;
+  page?: string;
+};
+
 interface PageProps {
-  searchParams: {
-    categoria?: string;
-    difficolta?: string;
-    q?: string;
-    page?: string;
-  };
+  searchParams: Promise<RecipeSearchParams>;
 }
 
 const RECIPES_PER_PAGE = 12;
 
 export async function generateMetadata({ searchParams }: PageProps) {
   try {
-    const { totalCount} = await getRecipesWhitFilters(searchParams);
+    const sp = await searchParams;
+    const { totalCount} = await getRecipesWhitFilters(sp);
 
     let title = 'Ricette di Pasticceria';
     let description = 'Scopri le migliori ricette di pasticceria moderna italiana';
     let keywords = 'ricette pasticceria, dolci italiani, pasticceria moderna, tutorial dolci';
 
-    if (searchParams.categoria) {
-      const categoryName = searchParams.categoria.charAt(0).toUpperCase() + searchParams.categoria.slice(1);
+    if (sp.categoria) {
+      const categoryName = sp.categoria.charAt(0).toUpperCase() + sp.categoria.slice(1);
       title = `${totalCount} Ricette ${categoryName} | Cristian's Pastry`;
       description = `${totalCount} ricette di ${categoryName.toLowerCase()} testate dal pasticcere.`;
       keywords = `ricette ${categoryName.toLowerCase()}, ${categoryName} pasticceria`;
-    } else if (searchParams.difficolta) {
-      const difficultyText = searchParams.difficolta === 'facile' ? 'Facili' :
-        searchParams.difficolta === 'medio' ? 'Medie' : 'Difficili';
+    } else if (sp.difficolta) {
+      const difficultyText = sp.difficolta === 'facile' ? 'Facili' :
+        sp.difficolta === 'medio' ? 'Medie' : 'Difficili';
       title = `${totalCount} Ricette ${difficultyText} | Cristian's Pastry`;
-      description = `${totalCount} ricette di difficoltà ${searchParams.difficolta}`;
-    } else if (searchParams.q) {
-      title = `"${searchParams.q}" - ${totalCount} Ricette | Cristian's Pastry`;
-      description = `${totalCount} ricette trovate per "${searchParams.q}"`;
+      description = `${totalCount} ricette di difficoltà ${sp.difficolta}`;
+    } else if (sp.q) {
+      title = `"${sp.q}" - ${totalCount} Ricette | Cristian's Pastry`;
+      description = `${totalCount} ricette trovate per "${sp.q}"`;
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
     let canonicalUrl = `${baseUrl}/ricette`;
     const params = new URLSearchParams();
-    if (searchParams.categoria) params.set('categoria', searchParams.categoria);
-    if (searchParams.difficolta) params.set('difficolta', searchParams.difficolta);
-    if (searchParams.q) params.set('q', searchParams.q);
-    if (searchParams.page && searchParams.page !== '1') params.set('page', searchParams.page);
+    if (sp.categoria) params.set('categoria', sp.categoria);
+    if (sp.difficolta) params.set('difficolta', sp.difficolta);
+    if (sp.q) params.set('q', sp.q);
+    if (sp.page && sp.page !== '1') params.set('page', sp.page);
     if (params.toString()) canonicalUrl += `?${params.toString()}`;
 
     return getPageMetadata({
@@ -87,7 +90,7 @@ export async function generateMetadata({ searchParams }: PageProps) {
 
 function generateCollectionSchema(
   recipes: Recipe[],
-  searchParams: PageProps['searchParams'],
+  searchParams: RecipeSearchParams,
   totalCount: number,
   categories: string[]
 ) {
@@ -160,13 +163,14 @@ function generateCollectionSchema(
 
 export default async function Ricette({ searchParams }: PageProps) {
   try {
-    const currentPage = parseInt(searchParams.page || '1', 10);
+    const sp = await searchParams;
+    const currentPage = parseInt(sp.page || '1', 10);
 
     const {
       recipes,
       totalCount,
       categories,
-    } = await getRecipesWhitFilters(searchParams, {
+    } = await getRecipesWhitFilters(sp, {
       page: currentPage,
       limit: RECIPES_PER_PAGE
     });
@@ -198,10 +202,10 @@ export default async function Ricette({ searchParams }: PageProps) {
       }))
     ];
 
-    const collectionSchema = generateCollectionSchema(validRecipes, searchParams, totalCount, categories);
+    const collectionSchema = generateCollectionSchema(validRecipes, sp, totalCount, categories);
 
    
-    const items = buildRecipeBreadcrumbs(searchParams);
+    const items = buildRecipeBreadcrumbs(sp);
 
     return (
       <>
@@ -219,8 +223,6 @@ export default async function Ricette({ searchParams }: PageProps) {
 
         <RecipeFilterBar
           categories={categoryFilters}
-          searchParams={searchParams}
-          
         />
 
         <main className="max-w-6xl mx-auto px-4 py-12">
@@ -262,7 +264,7 @@ export default async function Ricette({ searchParams }: PageProps) {
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            buildHref={(page) => buildRecipePaginationHref(page, searchParams)}
+            buildHref={(page) => buildRecipePaginationHref(page, sp)}
           />
         </main>
       </>

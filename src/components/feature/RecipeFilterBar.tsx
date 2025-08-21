@@ -5,22 +5,10 @@ import { useSearchParams } from "next/navigation";
 import { useRef, useState, useEffect } from "react";
 
 // Componente FilterBar con navigation arrows
-interface PageProps {
-    searchParams: {
-        categoria?: string;
-        difficolta?: string;
-        q?: string;
-        page?: string;
-    };
-}
-
 export default function RecipeFilterBar({
     categories,
-  
 }: {
     categories: { name: string; count: number }[];
-    searchParams: PageProps['searchParams'];
-   
 }) {
     const urlSearchParams = useSearchParams();
     const scrollRef = useRef<HTMLDivElement>(null);
